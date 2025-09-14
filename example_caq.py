@@ -46,7 +46,7 @@ def plot_coverage_at_q(probs_skewed, probs_skewed2, probs_skewed3, probs_uniform
     q_uniform, coverage_uniform = generate_coverage_curve(probs_uniform)
     
     # Create the plot
-    plt.figure(figsize=(12, 7))
+    plt.figure(figsize=(7, 7))
     
     # Plot all curves
     plt.plot(q_skewed, coverage_skewed, 'r-', linewidth=2, label='Highly Skewed (90,3,3,4)', marker='o', markersize=3)
@@ -57,14 +57,16 @@ def plot_coverage_at_q(probs_skewed, probs_skewed2, probs_skewed3, probs_uniform
     # Customize the plot
     plt.xlabel('Threshold q', fontsize=12)
     plt.ylabel('Coverage (proportion of categories with count > q)', fontsize=12)
-    plt.title('Coverage-at-Q Curves (100 items, 4 classes, uniform point q=0.25)', fontsize=14, fontweight='bold')
+    plt.title('Coverage-at-Q Curves (100 items, 4 classes)', fontsize=14, fontweight='bold')
     plt.grid(True, alpha=0.3)
     plt.legend(fontsize=11)
     
-    # Set axis limits - focus on the relevant range up to uniform point
+    # Set axis limits
     plt.xlim(0, 1.0)
     plt.ylim(0, 1.0)
     
+    # make the plot square
+    plt.gca().set_aspect('equal', adjustable='box')
     plt.tight_layout()
     plt.savefig('coverage_at_q.jpg', dpi=300, bbox_inches='tight')
     plt.show()
