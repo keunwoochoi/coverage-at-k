@@ -87,20 +87,20 @@ if __name__ == "__main__":
     total_possible_cats = 4  # Only 4 possible classes
 
     print(f"--- Highly Skewed Distribution (Total Items: {sum(counts_skewed.values())}) ---")
-    print(f"C@0 (Coverage): {coverage_at_k(counts_skewed, 0, total_possible_cats):.3f}")
-    print(f"AUC-C@K: {auc_catk(counts_skewed, total_possible_cats):.3f}\n")
+    print(f"C(0): {coverage_at_k(counts_skewed, 0, total_possible_cats):.3f}")
+    print(f"AUC-C(K): {auc_catk(counts_skewed, total_possible_cats):.3f}\n")
 
     print(f"--- Moderately Skewed Distribution (Total Items: {sum(counts_skewed2.values())}) ---")
-    print(f"C@0 (Coverage): {coverage_at_k(counts_skewed2, 0, total_possible_cats):.3f}")
-    print(f"AUC-C@K: {auc_catk(counts_skewed2, total_possible_cats):.3f}\n")
+    print(f"C(0): {coverage_at_k(counts_skewed2, 0, total_possible_cats):.3f}")
+    print(f"AUC-C(K): {auc_catk(counts_skewed2, total_possible_cats):.3f}\n")
 
     print(f"--- Slightly Skewed Distribution (Total Items: {sum(counts_skewed3.values())}) ---")
-    print(f"C@0 (Coverage): {coverage_at_k(counts_skewed3, 0, total_possible_cats):.3f}")
-    print(f"AUC-C@K: {auc_catk(counts_skewed3, total_possible_cats):.3f}\n")
+    print(f"C(0): {coverage_at_k(counts_skewed3, 0, total_possible_cats):.3f}")
+    print(f"AUC-C(K): {auc_catk(counts_skewed3, total_possible_cats):.3f}\n")
 
     print(f"--- Uniform Distribution (Total Items: {sum(counts_uniform.values())}) ---")
-    print(f"C@0 (Coverage): {coverage_at_k(counts_uniform, 0, total_possible_cats):.3f}")
-    print(f"AUC-C@K: {auc_catk(counts_uniform, total_possible_cats):.3f}\n")
+    print(f"C(0): {coverage_at_k(counts_uniform, 0, total_possible_cats):.3f}")
+    print(f"AUC-C(K): {auc_catk(counts_uniform, total_possible_cats):.3f}\n")
     
     # Create visualization
     print("Generating Coverage-at-K visualization...")

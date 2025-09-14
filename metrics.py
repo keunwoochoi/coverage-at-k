@@ -119,3 +119,8 @@ def deviation_from_uniform(probs: dict) -> float:
             area = area + coverage_values[i] * (q - (q_values[i-1] if i > 0 else 0))
 
     return num_categories * area
+
+# Alias for new terminology (Uniform Divergence Score / UDS)
+def uniform_divergence_score(probs: dict) -> float:
+    """Alias of deviation_from_uniform for UDS naming consistency."""
+    return deviation_from_uniform(probs)
