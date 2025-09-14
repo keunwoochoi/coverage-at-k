@@ -1,7 +1,6 @@
 import math
 from collections import Counter
 
-
 def coverage_at_k(counts: Counter, k: float, total_possible: int) -> float:
     """
     Calculates the proportion of possible categories with a count strictly greater than k.
@@ -64,3 +63,23 @@ def auc_catk(counts: Counter, total_possible: int) -> float:
         return 0.0
 
     return observed_area / ideal_area
+
+def coverage_at_q(probs: dict, q: float) -> float:
+    """
+    Calculates the proportion of categories with a probability greater than or equal to q.
+
+    Args:
+        probs: Dictionary with category probabilities
+        q: Probability threshold
+
+    Returns:
+        float: Proportion of categories with probability >= q
+
+    """
+    if not probs:
+        return 0.0
+    
+    assert 0.0 <= q <= 1.0, "q must be in [0, 1]"
+
+    count_greater_equal_q = sum(1 for v in probs.values() if v >= q)
+    return count_greater_equal_q / len(probs)
