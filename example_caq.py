@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from collections import Counter
-from metrics import coverage_at_q
+from metrics import coverage_at_q, deviation_from_uniform
 
 def generate_coverage_curve(probs):
     """
@@ -57,7 +57,7 @@ def plot_coverage_at_q(probs_skewed, probs_skewed2, probs_skewed3, probs_uniform
     # Customize the plot
     plt.xlabel('Threshold q', fontsize=12)
     plt.ylabel('Coverage (proportion of categories with count > q)', fontsize=12)
-    plt.title('Coverage-at-Q Curves (100 items, 4 classes)', fontsize=14, fontweight='bold')
+    plt.title('Coverage-at-Q Curves (100 items, 4 classes, max DfU=0.25)', fontsize=12, fontweight='bold')
     plt.grid(True, alpha=0.3)
     plt.legend(fontsize=11)
     
@@ -65,7 +65,21 @@ def plot_coverage_at_q(probs_skewed, probs_skewed2, probs_skewed3, probs_uniform
     plt.xlim(0, 1.0)
     plt.ylim(0, 1.0)
     
-    # make the plot square
+    # Add AUC-C@Q values as text
+    dfu_skewed = deviation_from_uniform(probs_skewed)
+    dfu_skewed2 = deviation_from_uniform(probs_skewed2)
+    dfu_skewed3 = deviation_from_uniform(probs_skewed3)
+    dfu_uniform = deviation_from_uniform(probs_uniform)
+    
+    plt.text(0.02, 0.98, f'Highly Skewed DfU: {dfu_skewed:.3f}', transform=plt.gca().transAxes, 
+             verticalalignment='top', bbox=dict(boxstyle='round', facecolor='red', alpha=0.3))
+    plt.text(0.02, 0.90, f'Moderately Skewed DfU: {dfu_skewed2:.3f}', transform=plt.gca().transAxes, 
+             verticalalignment='top', bbox=dict(boxstyle='round', facecolor='orange', alpha=0.3))
+    plt.text(0.02, 0.82, f'Slightly Skewed DfU: {dfu_skewed3:.3f}', transform=plt.gca().transAxes, 
+             verticalalignment='top', bbox=dict(boxstyle='round', facecolor='purple', alpha=0.3))
+    plt.text(0.02, 0.74, f'Uniform DfU: {dfu_uniform:.3f}', transform=plt.gca().transAxes, 
+             verticalalignment='top', bbox=dict(boxstyle='round', facecolor='blue', alpha=0.3))
+    
     plt.gca().set_aspect('equal', adjustable='box')
     plt.tight_layout()
     plt.savefig('coverage_at_q.jpg', dpi=300, bbox_inches='tight')
@@ -97,15 +111,19 @@ if __name__ == "__main__":
 
     print(f"--- Highly Skewed Distribution (Total Items: {sum(counts_skewed.values())}) ---")
     print(f"C@0 (Coverage): {coverage_at_q(counts_skewed, 0):.3f}")
+    print(f"DfU: {deviation_from_uniform(probs_skewed):.3f}\n")
 
     print(f"--- Moderately Skewed Distribution (Total Items: {sum(counts_skewed2.values())}) ---")
     print(f"C@0 (Coverage): {coverage_at_q(counts_skewed2, 0):.3f}")
+    print(f"DfU: {deviation_from_uniform(probs_skewed2):.3f}\n")
 
     print(f"--- Slightly Skewed Distribution (Total Items: {sum(counts_skewed3.values())}) ---")
     print(f"C@0 (Coverage): {coverage_at_q(counts_skewed3, 0):.3f}")
+    print(f"DfU: {deviation_from_uniform(probs_skewed3):.3f}\n")
 
     print(f"--- Uniform Distribution (Total Items: {sum(counts_uniform.values())}) ---")
     print(f"C@0 (Coverage): {coverage_at_q(counts_uniform, 0):.3f}")
+    print(f"DfU: {deviation_from_uniform(probs_uniform):.3f}\n")
     
     # Create visualization
     print("Generating Coverage-at-Q visualization...")
