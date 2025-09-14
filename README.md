@@ -18,11 +18,11 @@ from metrics import coverage_at_k, auc_catk, coverage_at_q, deviation_from_unifo
 counts = Counter({'a': 50, 'b': 30, 'c': 15, 'd': 5})  # 100 items, 4 possible categories
 total_possible = 4
 
-print("C@0:", coverage_at_k(counts, 0, total_possible))          # non-empty proportion
-print("AUC-C@K:", auc_catk(counts, total_possible))              # normalized evenness up to even point
+print("C(0):", coverage_at_k(counts, 0, total_possible))          # non-empty proportion
+print("AUC-C(K):", auc_catk(counts, total_possible))              # normalized evenness up to even point
 
 probs = {k: v / sum(counts.values()) for k, v in counts.items()}
-print("C@0 (probabilities):", coverage_at_q(probs, 0.0))         # always 1.0 if no zero-prob categories
+print("C(0) (probabilities):", coverage_at_q(probs, 0.0))         # always 1.0 if no zero-prob categories
 print("DfU:", deviation_from_uniform(probs))                     # deviation from uniform step
 ```
 
@@ -116,7 +116,7 @@ All inputs are lightweight Python primitives (`Counter`, `dict`).
 
 ### 6.1 Coverage-at-K / AUC-C(K)
 
-See `example.py` (also generates `coverage_at_k.jpg`).
+See `example_ck.py` (also generates `coverage_at_k.jpg`).
 
 Minimal excerpt:
 
@@ -131,7 +131,7 @@ print(auc_catk(counts_skewed, total_possible))  # 0.350
 
 ### 6.2 Coverage-at-Q / UDS
 
-See `example_caq.py` (also generates `coverage_at_q.jpg`).
+See `example_cq.py` (also generates `coverage_at_q.jpg`).
 
 Minimal excerpt:
 
@@ -167,8 +167,8 @@ Complementarity:
 ## 8. Usage
 
 ```
-python example.py      # Coverage-at-K & AUC-C(K)
-python example_caq.py  # Coverage-at-Q & UDS
+python example_ck.py  # Coverage-at-K & AUC-C(K)
+python example_cq.py  # Coverage-at-Q & UDS
 ```
 
 Outputs include printed metric values and saved plots in the repository root.
@@ -178,7 +178,7 @@ Outputs include printed metric values and saved plots in the repository root.
 * C(K) uses a strict > K; changing to ≥ would shift plateau lengths.
 * AUC-C(K) normalization assumes interest in evenness among all possible categories; if `total_possible` is unknown, you could substitute `len(counts)`.
 * UDS is sensitive only to ordering and magnitudes of probabilities, not to sample size.
-* Very small sample sizes can make counts-based AUC-C@K unstable; consider smoothing or minimum count filters.
+* Very small sample sizes can make counts-based AUC-C(K) unstable; consider smoothing or minimum count filters.
 * Neither metric replaces entropy; they are alternative, more interpretable lenses.
 
 ## 10. Citation
