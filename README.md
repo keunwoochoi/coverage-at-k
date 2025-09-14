@@ -8,11 +8,11 @@ Traditional evenness metrics like Shannon entropy can be abstract. Sometimes, wh
 
 As an extension of Coverage, we propose two metrics -- Coverage-at-K (C@K) and AUC-C@K.
 
-**Coverage-at-K**: What’s the proportion of categories that has more than K items? 
+- **Coverage-at-K**: What’s the proportion of categories that has more than K items? 
 
 Multiple C@K values can be aggregated into a single number using the area under curve.
 
-**AUC-C@K**: How quickly does C@K decrease as we raise the bar, K? 
+- **AUC-C@K**: How quickly does C@K decrease as we raise the bar, K? 
 
 A uniform distribution will have a broad, flat curve, while a skewed distribution will have a curve that drops off very quickly. We can quantify this shape by measuring the area under the curve.
 
@@ -44,7 +44,7 @@ As shown in the example above, we can compute C@K with varying K from 0, and it 
 
 Although we can increase K to the number of total items (e.g., 100 if there are 100 total items), we introduce a cutoff point for more meaningful analysis. This is called as the **"Even Point"**, which is the ideal count each observed (non-empty) category would have if the items were distributed evenly among them.
 
-**Even Point** = floor(total_items / number_of_observed_categories)
+- **Even Point** = floor(total_items / number_of_observed_categories)
 
 This Even Point serves as the upper limit for our analysis. We will measure the area under the coverage curve from k=0 up to this point. 
 
