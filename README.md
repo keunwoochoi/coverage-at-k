@@ -1,4 +1,4 @@
-# Coverage-at-K and its AUC: A Simple Evenness Metrics
+# Coverage-at-K: A Simple Evenness Metric
 
 A simple and intuitive metric for measuring the evenness of frequency distributions, focusing on scarce classes. 
 
@@ -105,7 +105,7 @@ If you use this concept or code in your research, please cite:
 ```bibtex
 @misc{choi2025coverageatk,
   author       = {Choi, Keunwoo},
-  title        = {{Coverage-at-K and its AUC: A Simple Evenness Metrics}},
+  title        = {{Coverage-at-K: A Simple Evenness Metric}},
   howpublished = {\url{https://github.com/keunwoochoi/coverage-at-k}},
   year         = {2025}
 }
