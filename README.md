@@ -129,10 +129,6 @@ total_possible = 4
 print(auc_catk(counts_skewed, total_possible))  # 0.350
 ```
 
-Resulting Visualziation:
-
-![Example visualization](coverage_at_k.jpg)
-
 ### 6.2 Coverage-at-Q / DfU
 
 See `example_caq.py` (also generates `coverage_at_q.jpg`).
@@ -148,10 +144,6 @@ total = sum(counts.values())
 probs = {k: v / total for k, v in counts.items()}
 print(deviation_from_uniform(probs))  # 0.600
 ```
-
-Resulting Visualziation:
-
-![Example visualization](coverage_at_q.jpg)
 
 Both scripts print metric values for four qualitative regimes: uniform, slightly, moderately, and highly skewed.
 
