@@ -55,7 +55,7 @@ def plot_coverage_at_k(counts_skewed, counts_skewed2, counts_skewed3, counts_uni
     plt.xlim(0, 25)
     plt.ylim(0, 1.0)
     
-    # Add AUC-C@K values as text
+    # Add AUC-C(K) values as text
     auc_skewed = auc_catk(counts_skewed, total_possible_cats)
     auc_skewed2 = auc_catk(counts_skewed2, total_possible_cats)
     auc_skewed3 = auc_catk(counts_skewed3, total_possible_cats)

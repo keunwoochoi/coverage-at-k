@@ -65,7 +65,7 @@ def plot_coverage_at_q(probs_skewed, probs_skewed2, probs_skewed3, probs_uniform
     plt.xlim(0, 1.0)
     plt.ylim(0, 1.0)
     
-    # Add AUC-C@Q values as text
+    # Add AUC-C(Q) values as text
     dfu_skewed = uniform_divergence_score(probs_skewed)
     dfu_skewed2 = uniform_divergence_score(probs_skewed2)
     dfu_skewed3 = uniform_divergence_score(probs_skewed3)
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     # Perfect uniform distribution (100 items, 4 classes)
     counts_uniform = Counter({'a': 25, 'b': 25, 'c': 25, 'd': 25})
 
-    # Convert counts to probabilities for AUC-C@Q
+    # Convert counts to probabilities for AUC-C(Q)
     total_skewed = sum(counts_skewed.values())
     probs_skewed = {k: v / total_skewed for k, v in counts_skewed.items()}
 
