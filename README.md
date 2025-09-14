@@ -18,7 +18,7 @@ A uniform distribution will have a broad, flat curve, while a skewed distributio
 
 ## Coverage-at-K: Details
 
-Coverage-at-K (C@K) is the fraction of categories that have at least more than K items. In many cases, C@K would be the higher, the better, though it may be the opposite depending on the application.
+Coverage-at-K (C@K) is the fraction of categories that have **more than** K items. This makes C@0 equal to standard coverage (non-empty proportion). In many cases, higher is better, though it may be the opposite depending on the application.
 
 - K = 0: reduces to standard coverage (non-empty categories / total possible)
 - As K increases, C@K decreases, showing how many categories are sufficiently populated
@@ -96,7 +96,7 @@ The plot shows coverage curves for different distribution types. The uniform dis
 python example.py
 ```
 
-This generates both numerical results and the visualization above.
+This generates both numerical results and the visualization above. See `metric.py` for the code to compute C@K and AUC-C@K.
 
 ## Citation
 

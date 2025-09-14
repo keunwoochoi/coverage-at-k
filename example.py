@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import Counter
-from metrics import coverage_at_k, auc_coverage, normalized_evenness_auc
+from metrics import coverage_at_k, auc_catk
 
 
 def generate_coverage_curve(counts, total_possible, max_k=None):
@@ -46,7 +46,7 @@ def plot_coverage_at_k(counts_skewed, counts_skewed2, counts_skewed3, counts_uni
     
     # Customize the plot
     plt.xlabel('Threshold k', fontsize=12)
-    plt.ylabel('Coverage (proportion of categories with count ≥ k)', fontsize=12)
+    plt.ylabel('Coverage (proportion of categories with count > k)', fontsize=12)
     plt.title('Coverage-at-K Curves (100 items, 4 classes, uniform point k=25)', fontsize=14, fontweight='bold')
     plt.grid(True, alpha=0.3)
     plt.legend(fontsize=11)
@@ -55,19 +55,19 @@ def plot_coverage_at_k(counts_skewed, counts_skewed2, counts_skewed3, counts_uni
     plt.xlim(0, 25)
     plt.ylim(0, 1.0)
     
-    # Add coverage values as text
-    coverage_skewed = auc_coverage(counts_skewed, total_possible_cats)
-    coverage_skewed2 = auc_coverage(counts_skewed2, total_possible_cats)
-    coverage_skewed3 = auc_coverage(counts_skewed3, total_possible_cats)
-    coverage_uniform = auc_coverage(counts_uniform, total_possible_cats)
+    # Add AUC-C@K values as text
+    auc_skewed = auc_catk(counts_skewed, total_possible_cats)
+    auc_skewed2 = auc_catk(counts_skewed2, total_possible_cats)
+    auc_skewed3 = auc_catk(counts_skewed3, total_possible_cats)
+    auc_uniform = auc_catk(counts_uniform, total_possible_cats)
     
-    plt.text(0.02, 0.98, f'Highly Skewed: {coverage_skewed:.3f}', transform=plt.gca().transAxes, 
+    plt.text(0.02, 0.98, f'Highly Skewed AUC: {auc_skewed:.3f}', transform=plt.gca().transAxes, 
              verticalalignment='top', bbox=dict(boxstyle='round', facecolor='red', alpha=0.3))
-    plt.text(0.02, 0.90, f'Moderately Skewed: {coverage_skewed2:.3f}', transform=plt.gca().transAxes, 
+    plt.text(0.02, 0.90, f'Moderately Skewed AUC: {auc_skewed2:.3f}', transform=plt.gca().transAxes, 
              verticalalignment='top', bbox=dict(boxstyle='round', facecolor='orange', alpha=0.3))
-    plt.text(0.02, 0.82, f'Slightly Skewed: {coverage_skewed3:.3f}', transform=plt.gca().transAxes, 
+    plt.text(0.02, 0.82, f'Slightly Skewed AUC: {auc_skewed3:.3f}', transform=plt.gca().transAxes, 
              verticalalignment='top', bbox=dict(boxstyle='round', facecolor='purple', alpha=0.3))
-    plt.text(0.02, 0.74, f'Uniform: {coverage_uniform:.3f}', transform=plt.gca().transAxes, 
+    plt.text(0.02, 0.74, f'Uniform AUC: {auc_uniform:.3f}', transform=plt.gca().transAxes, 
              verticalalignment='top', bbox=dict(boxstyle='round', facecolor='blue', alpha=0.3))
     
     plt.tight_layout()
@@ -87,20 +87,20 @@ if __name__ == "__main__":
     total_possible_cats = 4  # Only 4 possible classes
 
     print(f"--- Highly Skewed Distribution (Total Items: {sum(counts_skewed.values())}) ---")
-    print(f"Coverage at Uniform Point: {auc_coverage(counts_skewed, total_possible_cats):.3f}")
-    print(f"Evenness Score: {normalized_evenness_auc(counts_skewed, total_possible_cats):.3f}\n")
+    print(f"C@0 (Coverage): {coverage_at_k(counts_skewed, 0, total_possible_cats):.3f}")
+    print(f"AUC-C@K: {auc_catk(counts_skewed, total_possible_cats):.3f}\n")
 
     print(f"--- Moderately Skewed Distribution (Total Items: {sum(counts_skewed2.values())}) ---")
-    print(f"Coverage at Uniform Point: {auc_coverage(counts_skewed2, total_possible_cats):.3f}")
-    print(f"Evenness Score: {normalized_evenness_auc(counts_skewed2, total_possible_cats):.3f}\n")
+    print(f"C@0 (Coverage): {coverage_at_k(counts_skewed2, 0, total_possible_cats):.3f}")
+    print(f"AUC-C@K: {auc_catk(counts_skewed2, total_possible_cats):.3f}\n")
 
     print(f"--- Slightly Skewed Distribution (Total Items: {sum(counts_skewed3.values())}) ---")
-    print(f"Coverage at Uniform Point: {auc_coverage(counts_skewed3, total_possible_cats):.3f}")
-    print(f"Evenness Score: {normalized_evenness_auc(counts_skewed3, total_possible_cats):.3f}\n")
+    print(f"C@0 (Coverage): {coverage_at_k(counts_skewed3, 0, total_possible_cats):.3f}")
+    print(f"AUC-C@K: {auc_catk(counts_skewed3, total_possible_cats):.3f}\n")
 
     print(f"--- Uniform Distribution (Total Items: {sum(counts_uniform.values())}) ---")
-    print(f"Coverage at Uniform Point: {auc_coverage(counts_uniform, total_possible_cats):.3f}")
-    print(f"Evenness Score: {normalized_evenness_auc(counts_uniform, total_possible_cats):.3f}\n")
+    print(f"C@0 (Coverage): {coverage_at_k(counts_uniform, 0, total_possible_cats):.3f}")
+    print(f"AUC-C@K: {auc_catk(counts_uniform, total_possible_cats):.3f}\n")
     
     # Create visualization
     print("Generating Coverage-at-K visualization...")
