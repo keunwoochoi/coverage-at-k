@@ -36,7 +36,7 @@ def plot_coverage_at_k(counts_skewed, counts_skewed2, counts_skewed3, counts_uni
     k_uniform, coverage_uniform = generate_coverage_curve(counts_uniform, total_possible_cats)
     
     # Create the plot
-    plt.figure(figsize=(12, 7))
+    plt.figure(figsize=(7, 7))
     
     # Plot all curves
     plt.plot(k_skewed, coverage_skewed, 'r-', linewidth=2, label='Highly Skewed (90,3,3,4)', marker='o', markersize=3)
@@ -47,7 +47,7 @@ def plot_coverage_at_k(counts_skewed, counts_skewed2, counts_skewed3, counts_uni
     # Customize the plot
     plt.xlabel('Threshold k', fontsize=12)
     plt.ylabel('Coverage (proportion of categories with count > k)', fontsize=12)
-    plt.title('Coverage-at-K Curves (100 items, 4 classes, uniform point k=25)', fontsize=14, fontweight='bold')
+    plt.title('Coverage-at-K Curves (100 items, 4 classes, uniform point k=25)', fontsize=12, fontweight='bold')
     plt.grid(True, alpha=0.3)
     plt.legend(fontsize=11)
     
