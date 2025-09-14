@@ -1,8 +1,10 @@
 # Coverage-at-K: A Simple Evenness Metric
 
+Keunwoo Choi, 2025 Sep.
+
 A simple and intuitive metric for measuring the evenness of frequency distributions, focusing on scarce classes. 
 
-## Motivation
+## 1. Motivation
 
 Traditional evenness metrics like Shannon entropy can be abstract. Sometimes, what matters is if we have enough items for each category. The most similar metric is "Coverage", which computes the proportion of categories that has more than 0 items. While useful, coverage is limited because "0" is a pretty extreme number, ending up treating any 1+ counts equal. 
 
@@ -16,7 +18,7 @@ Multiple C@K values can be aggregated into a single number using the area under 
 
 A uniform distribution will have a broad, flat curve, while a skewed distribution will have a curve that drops off very quickly. We can quantify this shape by measuring the area under the curve.
 
-## Coverage-at-K: Details
+## 2. Coverage-at-K: Details
 
 Coverage-at-K (C@K) is the fraction of categories that have **more than** K items. This makes C@0 equal to standard coverage (non-empty proportion). In many cases, higher is better, though it may be the opposite depending on the application.
 
@@ -32,15 +34,15 @@ Coverage-at-K (C@K) is the fraction of categories that have **more than** K item
   - C@49 = 0.25
   - C@50 = 0.0
 
-## AUC-C@K: Details
+## 3. AUC-C@K: Details
 
 The method involves analyzing a coverage curve up to a specific cutoff point called "Even Point" to aggregate the coverages at multiple K values.
 
-### 1. The Coverage Curve
+### 3.1. The Coverage Curve
 
 As shown in the example above, we can compute C@K with varying K from 0, and it will decrease eventually to 0.
 
-### 2. Define the Even Point
+### 3.2. Define the Even Point
 
 Although we can increase K to the number of total items (e.g., 100 if there are 100 total items), we introduce a cutoff point for more meaningful analysis. This is called as the **"Even Point"**, which is the ideal count each observed (non-empty) category would have if the items were distributed evenly among them.
 
@@ -50,7 +52,7 @@ This Even Point serves as the upper limit for our analysis. We will measure the 
 
 Even Point is designed so that AUC-C@K is normalized between [0, 1] where a uniform distribution will have a value of 1. However, AUC-C@K will never be 0, as an extremely skewed distribution will still have a non-zero C@K for K $\in [0, even\_point]$. 
 
-### 3. Calculate the AUC Score
+### 3.3. Calculate the AUC Score
 
 We now turn the coverage curve into a single, comparable number.
 
@@ -64,7 +66,7 @@ Interpretation: 1.0 means perfectly uniform; lower values indicate increasing sk
 Stopping at the Even Point ensures apples-to-apples comparisons; any extra mass beyond it is already reflected by how quickly C@K falls before that point.
 
 
-## Example
+## 4. Example
 
 ```python
 from collections import Counter
@@ -84,13 +86,13 @@ highly_skewed = Counter({'a': 90, 'b': 3, 'c': 3, 'd': 4})
 print(f"Highly skewed: {auc_coverage(highly_skewed, 4):.3f}")     # 0.250
 ```
 
-## Visualization
+## 5. Visualization
 
 ![Coverage-at-K Comparison](coverage_at_k.jpg)
 
 The plot shows coverage curves for different distribution types. The uniform distribution maintains 100% coverage until k=25, while skewed distributions drop off at different rates based on their evenness.
 
-## Usage
+## 6. Usage
 
 ```bash
 python example.py
