@@ -1,113 +1,194 @@
-# Coverage-at-K: A Simple Evenness Metric
+# Coverage-at-K / Coverage-at-Q: Simple Sharpness Metrics
 
-Keunwoo Choi, 2025 Sep.
+Keunwoo Choi & Kyunghyun Cho (Sep 2025)
 
-A simple and intuitive metric for measuring the evenness of frequency distributions, focusing on scarce classes. 
+Two lightweight, interpretable metrics for describing how "spread out" (vs. sharp / concentrated) a categorical distribution or histogram is:
 
-## 1. Motivation
+1. Coverage-at-K (C(K)) on counts with threshold K, and a normalized area metric AUC-C(K).
+2. Coverage-at-Q (C(q)) on probabilities with threshold q, and a Uniform Divergence Score (UDS).
 
-Traditional evenness metrics like Shannon entropy can be abstract. Sometimes, what matters is if we have enough items for each category. The most similar metric is "Coverage", which computes the proportion of categories that has more than 0 items. While useful, coverage is limited because "0" is a pretty extreme number, ending up treating any 1+ counts equal. 
+Both relax the binary notion of "covered vs. not" by varying a threshold and aggregating the resulting step curve.
 
-As an extension of Coverage, we propose two metrics -- Coverage-at-K (C@K) and AUC-C@K.
-
-- **Coverage-at-K**: What’s the proportion of categories that has more than K items? 
-
-Multiple C@K values can be aggregated into a single number using the area under curve.
-
-- **AUC-C@K**: How quickly does C@K decrease as we raise the bar, K? 
-
-A uniform distribution will have a broad, flat curve, while a skewed distribution will have a curve that drops off very quickly. We can quantify this shape by measuring the area under the curve.
-
-## 2. Coverage-at-K: Details
-
-Coverage-at-K (C@K) is the fraction of categories that have **more than** K items. This makes C@0 equal to standard coverage (non-empty proportion). In many cases, higher is better, though it may be the opposite depending on the application.
-
-- K = 0: reduces to standard coverage (non-empty categories / total possible)
-- As K increases, C@K decreases, showing how many categories are sufficiently populated
-- Example (100 items, 4 classes): If item count is {A: 10, B: 15, C: 35, D:50}:
-  - C@0 (Coverage) = 1.0
-  - C@1, C@2, .. , C@9 = 1.0
-  - C@10 = 0.75
-  - C@14 = 0.75
-  - C@15 = 0.5
-  - C@35 = 0.25
-  - C@49 = 0.25
-  - C@50 = 0.0
-
-## 3. AUC-C@K: Details
-
-The method involves analyzing a coverage curve up to a specific cutoff point called "Even Point" to aggregate the coverages at multiple K values.
-
-### 3.1. The Coverage Curve
-
-As shown in the example above, we can compute C@K with varying K from 0, and it will decrease eventually to 0.
-
-### 3.2. Define the Even Point
-
-Although we can increase K to the number of total items (e.g., 100 if there are 100 total items), we introduce a cutoff point for more meaningful analysis. This is called as the **"Even Point"**, which is the ideal count each observed (non-empty) category would have if the items were distributed evenly among them.
-
-- **Even Point** = floor(total_items / number_of_observed_categories)
-
-This Even Point serves as the upper limit for our analysis. We will measure the area under the coverage curve from k=0 up to this point. 
-
-Even Point is designed so that AUC-C@K is normalized between [0, 1] where a uniform distribution will have a value of 1. However, AUC-C@K will never be 0, as an extremely skewed distribution will still have a non-zero C@K for K $\in [0, even\_point]$. 
-
-### 3.3. Calculate the AUC Score
-
-We now turn the coverage curve into a single, comparable number.
-
-- Observed area: Sum C@K from k = 0 up to the Even Point (inclusive).
-- Ideal area (perfectly uniform): Even Point × 1.0, because a uniform distribution keeps C@K = 1 up to the Even Point.
-- `AUC-C@K = Observed area / Ideal area` ∈ [0, 1].
-
-
-Interpretation: 1.0 means perfectly uniform; lower values indicate increasing skewness. If the distribution is a point-mass (Dirac delta) on a single class, it *converges* to 0 as the number of classes increases. Finally, in the case of distributions with high counts beyond Even Point, the skewness would be already reflected in their coverage behavior before the Even Point. 
-
-Stopping at the Even Point ensures apples-to-apples comparisons; any extra mass beyond it is already reflected by how quickly C@K falls before that point.
-
-
-## 4. Example
+## Quick Start
 
 ```python
 from collections import Counter
-from metrics import auc_coverage
+from metrics import coverage_at_k, auc_catk, coverage_at_q, deviation_from_uniform
 
-# Different types of distributions (100 items, 4 categories)
-uniform = Counter({'a': 25, 'b': 25, 'c': 25, 'd': 25})
-print(f"Uniform coverage: {auc_coverage(uniform, 4):.3f}")        # 1.000
+counts = Counter({'a': 50, 'b': 30, 'c': 15, 'd': 5})  # 100 items, 4 possible categories
+total_possible = 4
 
-slightly_skewed = Counter({'a': 35, 'b': 30, 'c': 25, 'd': 10})
-print(f"Slightly skewed: {auc_coverage(slightly_skewed, 4):.3f}") # 0.750
+print("C@0:", coverage_at_k(counts, 0, total_possible))          # non-empty proportion
+print("AUC-C@K:", auc_catk(counts, total_possible))              # normalized evenness up to even point
 
-moderately_skewed = Counter({'a': 50, 'b': 30, 'c': 15, 'd': 5})
-print(f"Moderately skewed: {auc_coverage(moderately_skewed, 4):.3f}") # 0.500
-
-highly_skewed = Counter({'a': 90, 'b': 3, 'c': 3, 'd': 4})
-print(f"Highly skewed: {auc_coverage(highly_skewed, 4):.3f}")     # 0.250
+probs = {k: v / sum(counts.values()) for k, v in counts.items()}
+print("C@0 (probabilities):", coverage_at_q(probs, 0.0))         # always 1.0 if no zero-prob categories
+print("DfU:", deviation_from_uniform(probs))                     # deviation from uniform step
 ```
 
-## 5. Visualization
+Plots (generated by the example scripts):
 
-![Coverage-at-K Comparison](coverage_at_k.jpg)
+<p align="center">
+  <img src="coverage_at_k.jpg" alt="Coverage-at-K curves" width="380" />
+  <img src="coverage_at_q.jpg" alt="Coverage-at-Q curves" width="380" />
+</p>
 
-The plot shows coverage curves for different distribution types. The uniform distribution maintains 100% coverage until k=25, while skewed distributions drop off at different rates based on their evenness.
+## 1. Motivation
 
-## 6. Usage
+Entropy is standard but often unintuitive to non-specialists. Plain coverage (fraction of non‑empty categories) is easy but brittle: a single noisy occurrence inflates it. We instead look at how coverage decays as the minimum acceptable count (K) or probability (Q) increases.
 
-```bash
-python example.py
+## 2. Coverage-at-K (C(K))
+
+Given a count vector over a universe of `total_possible` categories (some may be absent), define
+
+```
+C(K) = (# categories with count > K) / total_possible.
 ```
 
-This generates both numerical results and the visualization above. See `metric.py` for the code to compute C@K and AUC-C@K.
+Notes:
+* Strict inequality (> K) makes C(0) equal to ordinary coverage (non‑empty proportion).
+* C(K) is non‑increasing in K and eventually reaches 0.
 
-## Citation
+Example (counts: A=10, B=15, C=35, D=50; total_possible=4):
+* C(0) … C(9) = 1.00
+* C(10) … C(14) = 0.75
+* C(15) … C(34) = 0.50
+* C(35) … C(49) = 0.25
+* C(50+) = 0.00
 
-If you use this concept or code in your research, please cite:
+### 2.1 Even Point and AUC-C(K)
+
+Let:
+* `total_items = sum(counts)`
+* `observed_categories = number of categories with count > 0`
+* `even_point = floor(total_items / observed_categories)`
+
+This is the per-category count each observed category would have under perfect evenness. We integrate (sum) C(K) for K = 0 … even_point - 1 (i.e. `even_point` terms). To normalize, we compare against the "ideal" uniform plateau height: `(observed_categories / total_possible)`.
+
+```
+observed_area = sum_{K=0}^{even_point-1} C(K)
+ideal_area    = even_point * (observed_categories / total_possible)
+AUC-C(K)      = observed_area / ideal_area   ∈ [0,1].
+```
+
+Interpretation:
+* 1.0 ⇒ all observed categories are as even as possible (uniform among those present AND all possible categories appear).
+* ↓ toward 0 ⇒ mass is concentrated in fewer categories relative to ideal evenness.
+
+## 3. Coverage-at-Q (C(q))
+
+For a probability vector `p` over C categories (∑ p_c = 1), define
+
+```
+C(q) = (# categories with p_c ≥ q) / C.
+```
+
+This produces a non‑increasing step function from Q=0 (value 1) to Q>max p_c (value 0).
+
+Uniform distribution (all p_c = 1/C):
+* C(q) = 1 for 0 ≤ q ≤ 1/C
+* C(q) = 0 for q > 1/C
+
+## 4. Uniform Divergence Score (UDS)
+
+We measure how far C(q) deviates from the uniform step. Let `q* = 1/C`. Define:
+
+```
+UDS(p) = C * [ ∫_{0}^{q*} (1 - C(q)(p)) dq  +  ∫_{q*}^{1} C(q)(p) dq ].
+```
+
+Because C(q)(p) and the uniform reference are proportions (already divided by C), UDS ∈ [0,1]:
+* 0 for the uniform distribution.
+* 1 for the maximally sharp (Dirac) distribution.
+
+Implementation detail: we exploit the breakpoints at the sorted probabilities; the integral becomes a sum over intervals.
+
+## 5. Functions Provided (`metrics.py`)
+
+* `coverage_at_k(counts, k, total_possible)` → C(K)
+* `auc_catk(counts, total_possible)` → normalized AUC-C(K)
+* `coverage_at_q(probs, q)` → C(q) (≥ threshold)
+* `deviation_from_uniform(probs)` / `uniform_divergence_score(probs)` → UDS
+
+All inputs are lightweight Python primitives (`Counter`, `dict`).
+
+## 6. Examples
+
+### 6.1 Coverage-at-K / AUC-C(K)
+
+See `example.py` (also generates `coverage_at_k.jpg`).
+
+Minimal excerpt:
+
+```python
+from collections import Counter
+from metrics import coverage_at_k, auc_catk
+
+counts_skewed = Counter({'a': 90, 'b': 3, 'c': 3, 'd': 4})
+total_possible = 4
+print(auc_catk(counts_skewed, total_possible))  # 0.350
+```
+
+### 6.2 Coverage-at-Q / UDS
+
+See `example_caq.py` (also generates `coverage_at_q.jpg`).
+
+Minimal excerpt:
+
+```python
+from collections import Counter
+from metrics import coverage_at_q, deviation_from_uniform
+
+counts = Counter({'a': 50, 'b': 30, 'c': 15, 'd': 5})
+total = sum(counts.values())
+probs = {k: v / total for k, v in counts.items()}
+print(deviation_from_uniform(probs))  # 0.600
+```
+
+Both scripts print metric values for four qualitative regimes: uniform, slightly, moderately, and highly skewed.
+
+## 7. Interpreting the Metrics
+
+| Distribution (100 items, 4 cats) | C(0) | AUC-C(K) | UDS  |
+|----------------------------------|------|----------|------|
+| Uniform (25,25,25,25)            | 1.0  | 1.000    | 0.000|
+| Slightly skewed (35,30,25,10)    | 1.0  | 0.850    | 0.300|
+| Moderately skewed (50,30,15,5)   | 1.0  | 0.700    | 0.600|
+| Highly skewed (90,3,3,4)         | 1.0  | 0.350    | 0.880|
+
+Heuristics:
+* AUC-C(K) decreases smoothly with concentration; UDS increases.
+* C(0) alone cannot distinguish the four examples (all 1.0) — motivating these richer summaries.
+
+Complementarity:
+* AUC-C(K) depends on raw counts and the set of *possible* categories.
+* UDS depends only on normalized probabilities (ignores total mass and unseen possible categories).
+
+## 8. Usage
+
+```
+python example.py      # Coverage-at-K & AUC-C(K)
+python example_caq.py  # Coverage-at-Q & UDS
+```
+
+Outputs include printed metric values and saved plots in the repository root.
+
+## 9. Limitations & Notes
+
+* C(K) uses a strict > K; changing to ≥ would shift plateau lengths.
+* AUC-C(K) normalization assumes interest in evenness among all possible categories; if `total_possible` is unknown, you could substitute `len(counts)`.
+* UDS is sensitive only to ordering and magnitudes of probabilities, not to sample size.
+* Very small sample sizes can make counts-based AUC-C@K unstable; consider smoothing or minimum count filters.
+* Neither metric replaces entropy; they are alternative, more interpretable lenses.
+
+## 10. Citation
+
+If you use this code or the metric definitions, please cite:
 
 ```bibtex
 @misc{choi2025coverageatk,
-  author       = {Choi, Keunwoo},
-  title        = {{Coverage-at-K: A Simple Evenness Metric}},
+  author       = {Choi, Keunwoo and Cho, Kyunghyun},
+  title        = {Coverage-at-K / Coverage-at-Q: Simple Metrics for Measuring Sharpness},
   howpublished = {\url{https://github.com/keunwoochoi/coverage-at-k}},
   year         = {2025}
 }

@@ -1,7 +1,6 @@
 import math
 from collections import Counter
 
-
 def coverage_at_k(counts: Counter, k: float, total_possible: int) -> float:
     """
     Calculates the proportion of possible categories with a count strictly greater than k.
@@ -64,3 +63,64 @@ def auc_catk(counts: Counter, total_possible: int) -> float:
         return 0.0
 
     return observed_area / ideal_area
+
+def coverage_at_q(probs: dict, q: float) -> float:
+    """
+    Calculates the proportion of categories with a probability greater than or equal to q.
+
+    Args:
+        probs: Dictionary with category probabilities
+        q: Probability threshold
+
+    Returns:
+        float: Proportion of categories with probability >= q
+
+    """
+    if not probs:
+        return 0.0
+    
+    assert 0.0 <= q <= 1.0, "q must be in [0, 1]"
+
+    count_greater_equal_q = sum(1 for v in probs.values() if v >= q)
+    return count_greater_equal_q / len(probs)
+
+def deviation_from_uniform(probs: dict) -> float:
+    """
+    Calculates the deviation from uniform distribution using the coverage-at-q metric.
+
+    Args:
+        probs: Dictionary with category probabilities
+
+    Returns:
+        float: \int_0^p (1 - C@q) dq + \int_p^1 C@q dq, where p = 1/number_of_categories
+    """
+    if not probs:
+        return 0.0
+
+    num_categories = len(probs)
+    if num_categories == 0:
+        return 0.0
+    
+    p = 1.0 / num_categories
+
+    # sort the probabilities in ascending order
+    sorted_probs = sorted(probs.values())
+
+    # find points where coverage changes
+    q_values = [0.0] +sorted_probs + [1.0]
+    coverage_values = [coverage_at_q(probs, q) for q in q_values]
+
+    area = 0.0
+
+    for i, q in enumerate(q_values):
+        if q <= p:
+            area = area + (1 - coverage_values[i]) * (q - (q_values[i-1] if i > 0 else 0))
+        else:
+            area = area + coverage_values[i] * (q - (q_values[i-1] if i > 0 else 0))
+
+    return num_categories * area
+
+# Alias for new terminology (Uniform Divergence Score / UDS)
+def uniform_divergence_score(probs: dict) -> float:
+    """Alias of deviation_from_uniform for UDS naming consistency."""
+    return deviation_from_uniform(probs)
