@@ -5,7 +5,7 @@ Keunwoo Choi & Kyunghyun Cho (Sep 2025)
 Two lightweight, interpretable metrics for describing how "spread out" (vs. sharp / concentrated) a categorical distribution or histogram is:
 
 1. Coverage-at-K (C(K)) on counts with threshold K, and a normalized area metric AUC-C(K).
-2. Coverage-at-Q (C(q)) on probabilities with threshold q, and a Uniform Divergence Score (UDS).
+2. Coverage-at-Q (C̅(q)) on probabilities with threshold q, and a Uniform Divergence Score (UDS).
 
 Both relax the binary notion of "covered vs. not" by varying a threshold and aggregating the resulting step curve.
 
@@ -75,29 +75,29 @@ Interpretation:
 * 1.0 ⇒ all observed categories are as even as possible (uniform among those present AND all possible categories appear).
 * ↓ toward 0 ⇒ mass is concentrated in fewer categories relative to ideal evenness.
 
-## 3. Coverage-at-Q (C(q))
+## 3. Coverage-at-Q (C̅(q))
 
 For a probability vector `p` over C categories (∑ p_c = 1), define
 
 ```
-C(q) = (# categories with p_c ≥ q) / C.
+C̅(q) = (# categories with p_c ≥ q) / C.
 ```
 
-This produces a non‑increasing step function from Q=0 (value 1) to Q>max p_c (value 0).
+This produces a non‑increasing step function from q=0 (value 1) to q>max p_c (value 0).
 
 Uniform distribution (all p_c = 1/C):
-* C(q) = 1 for 0 ≤ q ≤ 1/C
-* C(q) = 0 for q > 1/C
+* C̅(q) = 1 for 0 ≤ q ≤ 1/C
+* C̅(q) = 0 for q > 1/C
 
 ## 4. Uniform Divergence Score (UDS)
 
-We measure how far C(q) deviates from the uniform step. Let `q* = 1/C`. Define:
+We measure how far C̅(q) deviates from the uniform step. Let `q* = 1/C`. Define:
 
 ```
-UDS(p) = C * [ ∫_{0}^{q*} (1 - C(q)(p)) dq  +  ∫_{q*}^{1} C(q)(p) dq ].
+UDS(p) = C * [ ∫_{0}^{q*} (1 - C̅(q)(p)) dq  +  ∫_{q*}^{1} C̅(q)(p) dq ].
 ```
 
-Because C(q)(p) and the uniform reference are proportions (already divided by C), UDS ∈ [0,1]:
+Because C̅(q)(p) and the uniform reference are proportions (already divided by C), UDS ∈ [0,1]:
 * 0 for the uniform distribution.
 * 1 for the maximally sharp (Dirac) distribution.
 
@@ -107,7 +107,7 @@ Implementation detail: we exploit the breakpoints at the sorted probabilities; t
 
 * `coverage_at_k(counts, k, total_possible)` → C(K)
 * `auc_catk(counts, total_possible)` → normalized AUC-C(K)
-* `coverage_at_q(probs, q)` → C(q) (≥ threshold)
+* `coverage_at_q(probs, q)` → C̅(q) (≥ threshold)
 * `deviation_from_uniform(probs)` / `uniform_divergence_score(probs)` → UDS
 
 All inputs are lightweight Python primitives (`Counter`, `dict`).
@@ -129,20 +129,22 @@ total_possible = 4
 print(auc_catk(counts_skewed, total_possible))  # 0.350
 ```
 
-### 6.2 Coverage-at-Q / UDS
+### 6.2 Coverage-at-Q / UDS (C̅)
 
 See `example_caq.py` (also generates `coverage_at_q.jpg`).
+
+Notation: we use C(K) for count-threshold coverage and C̅(q) for probability-threshold coverage to avoid ambiguity.
 
 Minimal excerpt:
 
 ```python
 from collections import Counter
-from metrics import coverage_at_q, deviation_from_uniform
+from metrics import coverage_at_q, uniform_divergence_score
 
 counts = Counter({'a': 50, 'b': 30, 'c': 15, 'd': 5})
 total = sum(counts.values())
 probs = {k: v / total for k, v in counts.items()}
-print(deviation_from_uniform(probs))  # 0.600
+print(uniform_divergence_score(probs))  # 0.600  (UDS)
 ```
 
 Both scripts print metric values for four qualitative regimes: uniform, slightly, moderately, and highly skewed.
@@ -162,7 +164,7 @@ Heuristics:
 
 Complementarity:
 * AUC-C(K) depends on raw counts and the set of *possible* categories.
-* UDS depends only on normalized probabilities (ignores total mass and unseen possible categories).
+* UDS (via C̅(q)) depends only on normalized probabilities (ignores total mass and unseen possible categories).
 
 ## 8. Usage
 
