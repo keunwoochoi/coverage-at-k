@@ -4,7 +4,7 @@ from collections import Counter
 def coverage_at_k(counts: Counter, k: float, total_possible: int) -> float:
     """
     Calculates the proportion of possible categories with a count strictly greater than k.
-    This matches the convention that C@0 equals standard coverage (non-empty proportion).
+    This matches the convention that C(0) equals standard coverage (non-empty proportion).
 
     Args:
         counts: Counter object with category counts
@@ -23,11 +23,11 @@ def coverage_at_k(counts: Counter, k: float, total_possible: int) -> float:
 
 def auc_catk(counts: Counter, total_possible: int) -> float:
     """
-    Normalized AUC-C@K up to the Even Point (strict C@K with "> k").
+    Normalized AUC-C(K) up to the Even Point (strict C(K) with "> k").
 
     Steps:
     - Compute Even Point = floor(total_items / number_of_observed_categories)
-    - Observed area: sum_{k=0}^{EvenPoint-1} C@k
+    - Observed area: sum_{k=0}^{EvenPoint-1} C(K)
     - Ideal area (uniform): EvenPoint * (number_of_observed_categories / total_possible)
     - Return observed / ideal ∈ [0,1]
 
@@ -36,7 +36,7 @@ def auc_catk(counts: Counter, total_possible: int) -> float:
         total_possible: Total number of possible categories
 
     Returns:
-        float: Normalized AUC-C@K up to the Even Point
+        float: Normalized AUC-C(K) up to the Even Point
 
     """
     if total_possible == 0:
@@ -67,6 +67,7 @@ def auc_catk(counts: Counter, total_possible: int) -> float:
 def coverage_at_q(probs: dict, q: float) -> float:
     """
     Calculates the proportion of categories with a probability greater than or equal to q.
+    This corresponds to the normalized coverage function C̅(q).
 
     Args:
         probs: Dictionary with category probabilities
@@ -86,13 +87,13 @@ def coverage_at_q(probs: dict, q: float) -> float:
 
 def deviation_from_uniform(probs: dict) -> float:
     """
-    Calculates the deviation from uniform distribution using the coverage-at-q metric.
+    Calculates the deviation from the uniform distribution using the coverage-at-q metric C̅(q).
 
     Args:
         probs: Dictionary with category probabilities
 
     Returns:
-        float: \int_0^p (1 - C@q) dq + \int_p^1 C@q dq, where p = 1/number_of_categories
+        float: \int_0^p (1 - C̅(q)) dq + \int_p^1 C̅(q) dq, where p = 1/number_of_categories
     """
     if not probs:
         return 0.0
