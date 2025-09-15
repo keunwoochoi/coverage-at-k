@@ -94,7 +94,7 @@ Uniform distribution (all p_c = 1/C):
 We measure how far C̅(q) deviates from the uniform step. Let `q* = 1/C`. Define:
 
 ```
-UDS(p) = C * [ ∫_{0}^{q*} (1 - C̅(q)(p)) dq  +  ∫_{q*}^{1} C̅(q)(p) dq ].
+UDS(p) = (C ** 2) / (2 * (C-1)) * [ ∫_{0}^{q*} (1 - C̅(q)(p)) dq  +  ∫_{q*}^{1} C̅(q)(p) dq ].
 ```
 
 Because C̅(q)(p) and the uniform reference are proportions (already divided by C), UDS ∈ [0,1]:
@@ -151,12 +151,12 @@ Both scripts print metric values for four qualitative regimes: uniform, slightly
 
 ## 7. Interpreting the Metrics
 
-| Distribution (100 items, 4 cats) | C(0) | AUC-C(K) | UDS  |
-|----------------------------------|------|----------|------|
-| Uniform (25,25,25,25)            | 1.0  | 1.000    | 0.000|
-| Slightly skewed (35,30,25,10)    | 1.0  | 0.850    | 0.300|
-| Moderately skewed (50,30,15,5)   | 1.0  | 0.700    | 0.600|
-| Highly skewed (90,3,3,4)         | 1.0  | 0.350    | 0.880|
+| Distribution (100 items, 4 cats) | C(0) | C̅(0) | AUC-C(K) | UDS  |
+|----------------------------------|------|------|----------|------|
+| Uniform (25,25,25,25)            | 1.0  | 1.0  | 1.000    | 0.000|
+| Slightly skewed (35,30,25,10)    | 1.0  | 1.0  | 0.850    | 0.200|
+| Moderately skewed (50,30,15,5)   | 1.0  | 1.0  | 0.700    | 0.400|
+| Highly skewed (90,3,3,4)         | 1.0  | 1.0  | 0.350    | 0.857|
 
 Heuristics:
 * AUC-C(K) decreases smoothly with concentration; UDS increases.
