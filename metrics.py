@@ -67,6 +67,7 @@ def auc_catk(counts: Counter, total_possible: int) -> float:
 def coverage_at_q(probs: dict, q: float) -> float:
     """
     Calculates the proportion of categories with a probability greater than or equal to q.
+    This corresponds to the normalized coverage function C̅(q).
 
     Args:
         probs: Dictionary with category probabilities
@@ -86,13 +87,13 @@ def coverage_at_q(probs: dict, q: float) -> float:
 
 def deviation_from_uniform(probs: dict) -> float:
     """
-    Calculates the deviation from uniform distribution using the coverage-at-q metric.
+    Calculates the deviation from the uniform distribution using the coverage-at-q metric C̅(q).
 
     Args:
         probs: Dictionary with category probabilities
 
     Returns:
-        float: \int_0^p (1 - C(q)) dq + \int_p^1 C(q) dq, where p = 1/number_of_categories
+        float: \int_0^p (1 - C̅(q)) dq + \int_p^1 C̅(q) dq, where p = 1/number_of_categories
     """
     if not probs:
         return 0.0

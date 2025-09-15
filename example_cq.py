@@ -56,8 +56,8 @@ def plot_coverage_at_q(probs_skewed, probs_skewed2, probs_skewed3, probs_uniform
     
     # Customize the plot
     plt.xlabel('Threshold q', fontsize=12)
-    plt.ylabel('Coverage C(q)', fontsize=12)
-    plt.title('Coverage C(q) Curves (100 items, 4 classes)', fontsize=12, fontweight='bold')
+    plt.ylabel('Coverage C̅(q)', fontsize=12)
+    plt.title('Coverage C̅(q) Curves (100 items, 4 classes)', fontsize=12, fontweight='bold')
     plt.grid(True, alpha=0.3)
     plt.legend(fontsize=11)
     
