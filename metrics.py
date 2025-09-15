@@ -99,27 +99,40 @@ def deviation_from_uniform(probs: dict) -> float:
         return 0.0
 
     num_categories = len(probs)
-    if num_categories == 0:
+    # The metric is trivial (0) for C=1 and undefined if C < 1.
+    if num_categories <= 1:
         return 0.0
+
+    p_uniform = 1.0 / num_categories
+
+    # It's crucial that p_uniform is included to correctly split the integral.
+    breakpoints = sorted(list(set([0.0, 1.0, p_uniform] + list(probs.values()))))
+
+    raw_area = 0.0
     
-    p = 1.0 / num_categories
+    for i in range(1, len(breakpoints)):
+        q_start = breakpoints[i-1]
+        q_end = breakpoints[i]
+        width = q_end - q_start
 
-    # sort the probabilities in ascending order
-    sorted_probs = sorted(probs.values())
+        if width == 0:
+            continue
 
-    # find points where coverage changes
-    q_values = [0.0] +sorted_probs + [1.0]
-    coverage_values = [coverage_at_q(probs, q) for q in q_values]
+        # The value of C̅(q) is constant over the interval (q_start, q_end].
+        # We can evaluate its value at the endpoint of the interval.
+        coverage = coverage_at_q(probs, q_end)
 
-    area = 0.0
-
-    for i, q in enumerate(q_values):
-        if q <= p:
-            area = area + (1 - coverage_values[i]) * (q - (q_values[i-1] if i > 0 else 0))
+        # Apply the correct rule based on which side of p_uniform the interval lies.
+        if q_end <= p_uniform:
+            # This interval is in the first part of the integral: ∫(1 - C̅(q)) dq
+            raw_area += (1 - coverage) * width
         else:
-            area = area + coverage_values[i] * (q - (q_values[i-1] if i > 0 else 0))
+            # This interval is in the second part of the integral: ∫C̅(q) dq
+            raw_area += coverage * width
 
-    return num_categories * area
+    normalization_factor = (num_categories**2) / (2 * (num_categories - 1))
+
+    return normalization_factor * raw_area
 
 # Alias for new terminology (Uniform Divergence Score / UDS)
 def uniform_divergence_score(probs: dict) -> float:
