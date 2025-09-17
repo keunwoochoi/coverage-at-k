@@ -82,7 +82,10 @@ def coverage_at_q(probs: dict, q: float) -> float:
     
     assert 0.0 <= q <= 1.0, "q must be in [0, 1]"
 
-    count_greater_equal_q = sum(1 for v in probs.values() if v > q)
+    if q >= 1.0:
+        count_greater_equal_q = sum(1 for v in probs.values() if v >= q)
+    else:
+        count_greater_equal_q = sum(1 for v in probs.values() if v > q)
     return count_greater_equal_q / len(probs)
 
 def deviation_from_uniform(probs: dict) -> float:
