@@ -35,11 +35,12 @@ def generate_coverage_curve(probs):
     return all_q_values, all_coverage_values
 
 
-def plot_coverage_at_q(probs_skewed, probs_skewed2, probs_skewed3, probs_uniform):
+def plot_coverage_at_q(probs_extreme, probs_skewed, probs_skewed2, probs_skewed3, probs_uniform):
     """
     Create a visualization comparing coverage-at-q curves for different distributions.
     """
     # Generate curve data
+    q_extreme, coverage_extreme = generate_coverage_curve(probs_extreme)
     q_skewed, coverage_skewed = generate_coverage_curve(probs_skewed)
     q_skewed2, coverage_skewed2 = generate_coverage_curve(probs_skewed2)
     q_skewed3, coverage_skewed3 = generate_coverage_curve(probs_skewed3)
@@ -49,6 +50,7 @@ def plot_coverage_at_q(probs_skewed, probs_skewed2, probs_skewed3, probs_uniform
     plt.figure(figsize=(7, 7))
     
     # Plot all curves
+    plt.plot(q_extreme, coverage_extreme, 'g-', linewidth=2, label='Extremely Skewed (100,0,0,0)', marker='o', markersize=3)
     plt.plot(q_skewed, coverage_skewed, 'r-', linewidth=2, label='Highly Skewed (90,3,3,4)', marker='o', markersize=3)
     plt.plot(q_skewed2, coverage_skewed2, 'orange', linewidth=2, label='Moderately Skewed (50,30,15,5)', marker='^', markersize=3)
     plt.plot(q_skewed3, coverage_skewed3, 'purple', linewidth=2, label='Slightly Skewed (35,30,25,10)', marker='d', markersize=3)
@@ -66,18 +68,21 @@ def plot_coverage_at_q(probs_skewed, probs_skewed2, probs_skewed3, probs_uniform
     plt.ylim(0, 1.0)
     
     # Add AUC-C@Q values as text
-    dfu_skewed = uniform_divergence_score(probs_skewed)
-    dfu_skewed2 = uniform_divergence_score(probs_skewed2)
-    dfu_skewed3 = uniform_divergence_score(probs_skewed3)
-    dfu_uniform = uniform_divergence_score(probs_uniform)
+    dfu_extreme = 1.0-uniform_divergence_score(probs_extreme)
+    dfu_skewed = 1.0-uniform_divergence_score(probs_skewed)
+    dfu_skewed2 = 1.0-uniform_divergence_score(probs_skewed2)
+    dfu_skewed3 = 1.0-uniform_divergence_score(probs_skewed3)
+    dfu_uniform = 1.0-uniform_divergence_score(probs_uniform)
     
-    plt.text(0.02, 0.98, f'Highly Skewed UDS: {dfu_skewed:.3f}', transform=plt.gca().transAxes, 
+    plt.text(0.02, 0.98, f'Extremely Skewed UCS: {dfu_extreme:.3f}', transform=plt.gca().transAxes, 
+             verticalalignment='top', bbox=dict(boxstyle='round', facecolor='green', alpha=0.3))
+    plt.text(0.02, 0.90, f'Highly Skewed UCS: {dfu_skewed:.3f}', transform=plt.gca().transAxes, 
              verticalalignment='top', bbox=dict(boxstyle='round', facecolor='red', alpha=0.3))
-    plt.text(0.02, 0.90, f'Moderately Skewed UDS: {dfu_skewed2:.3f}', transform=plt.gca().transAxes, 
+    plt.text(0.02, 0.82, f'Moderately Skewed UCS: {dfu_skewed2:.3f}', transform=plt.gca().transAxes, 
              verticalalignment='top', bbox=dict(boxstyle='round', facecolor='orange', alpha=0.3))
-    plt.text(0.02, 0.82, f'Slightly Skewed UDS: {dfu_skewed3:.3f}', transform=plt.gca().transAxes, 
+    plt.text(0.02, 0.74, f'Slightly Skewed UCS: {dfu_skewed3:.3f}', transform=plt.gca().transAxes, 
              verticalalignment='top', bbox=dict(boxstyle='round', facecolor='purple', alpha=0.3))
-    plt.text(0.02, 0.74, f'Uniform UDS: {dfu_uniform:.3f}', transform=plt.gca().transAxes, 
+    plt.text(0.02, 0.66, f'Uniform UCS: {dfu_uniform:.3f}', transform=plt.gca().transAxes, 
              verticalalignment='top', bbox=dict(boxstyle='round', facecolor='blue', alpha=0.3))
     
     plt.gca().set_aspect('equal', adjustable='box')
@@ -90,6 +95,7 @@ def plot_coverage_at_q(probs_skewed, probs_skewed2, probs_skewed3, probs_uniform
 if __name__ == "__main__":
     # Example Usage:
     # Different types of skewed distributions (100 items, 4 classes)
+    counts_extreme = Counter({'a': 100, 'b': 0, 'c': 0, 'd': 0})      # Highly skewed
     counts_skewed = Counter({'a': 90, 'b': 3, 'c': 3, 'd': 4})      # Highly skewed
     counts_skewed2 = Counter({'a': 50, 'b': 30, 'c': 15, 'd': 5})   # Moderately skewed
     counts_skewed3 = Counter({'a': 35, 'b': 30, 'c': 25, 'd': 10})  # Slightly skewed
@@ -97,6 +103,9 @@ if __name__ == "__main__":
     counts_uniform = Counter({'a': 25, 'b': 25, 'c': 25, 'd': 25})
 
     # Convert counts to probabilities for AUC-C@Q
+    total_extreme = sum(counts_extreme.values())
+    probs_extreme = {k: v / total_extreme for k, v in counts_extreme.items()}
+
     total_skewed = sum(counts_skewed.values())
     probs_skewed = {k: v / total_skewed for k, v in counts_skewed.items()}
 
@@ -109,22 +118,25 @@ if __name__ == "__main__":
     total_uniform = sum(counts_uniform.values())
     probs_uniform = {k: v / total_uniform for k, v in counts_uniform.items()}
 
+    print(f"--- Extremely Skewed Distribution (Total Items: {sum(counts_extreme.values())}) ---")
+    print(f"C(0): {coverage_at_q(counts_extreme, 0):.3f}")
+    print(f"UCS: {uniform_divergence_score(probs_extreme):.3f}\n")
     print(f"--- Highly Skewed Distribution (Total Items: {sum(counts_skewed.values())}) ---")
     print(f"C(0): {coverage_at_q(counts_skewed, 0):.3f}")
-    print(f"UDS: {uniform_divergence_score(probs_skewed):.3f}\n")
+    print(f"UCS: {uniform_divergence_score(probs_skewed):.3f}\n")
 
     print(f"--- Moderately Skewed Distribution (Total Items: {sum(counts_skewed2.values())}) ---")
     print(f"C(0): {coverage_at_q(counts_skewed2, 0):.3f}")
-    print(f"UDS: {uniform_divergence_score(probs_skewed2):.3f}\n")
+    print(f"UCS: {uniform_divergence_score(probs_skewed2):.3f}\n")
 
     print(f"--- Slightly Skewed Distribution (Total Items: {sum(counts_skewed3.values())}) ---")
     print(f"C(0): {coverage_at_q(counts_skewed3, 0):.3f}")
-    print(f"UDS: {uniform_divergence_score(probs_skewed3):.3f}\n")
+    print(f"UCS: {uniform_divergence_score(probs_skewed3):.3f}\n")
 
     print(f"--- Uniform Distribution (Total Items: {sum(counts_uniform.values())}) ---")
     print(f"C(0): {coverage_at_q(counts_uniform, 0):.3f}")
-    print(f"UDS: {uniform_divergence_score(probs_uniform):.3f}\n")
+    print(f"UCS: {uniform_divergence_score(probs_uniform):.3f}\n")
     
     # Create visualization
     print("Generating Coverage-at-Q visualization...")
-    plot_coverage_at_q(probs_skewed, probs_skewed2, probs_skewed3, probs_uniform)
+    plot_coverage_at_q(probs_extreme, probs_skewed, probs_skewed2, probs_skewed3, probs_uniform)
