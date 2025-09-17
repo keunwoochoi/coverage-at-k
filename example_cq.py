@@ -121,6 +121,7 @@ if __name__ == "__main__":
     print(f"--- Extremely Skewed Distribution (Total Items: {sum(counts_extreme.values())}) ---")
     print(f"C(0): {coverage_at_q(counts_extreme, 0):.3f}")
     print(f"UCS: {1.0-uniform_divergence_score(probs_extreme):.3f}\n")
+
     print(f"--- Highly Skewed Distribution (Total Items: {sum(counts_skewed.values())}) ---")
     print(f"C(0): {coverage_at_q(counts_skewed, 0):.3f}")
     print(f"UCS: {1.0-uniform_divergence_score(probs_skewed):.3f}\n")
