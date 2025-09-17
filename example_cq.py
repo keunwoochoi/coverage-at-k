@@ -120,22 +120,22 @@ if __name__ == "__main__":
 
     print(f"--- Extremely Skewed Distribution (Total Items: {sum(counts_extreme.values())}) ---")
     print(f"C(0): {coverage_at_q(counts_extreme, 0):.3f}")
-    print(f"UCS: {uniform_divergence_score(probs_extreme):.3f}\n")
+    print(f"UCS: {1.0-uniform_divergence_score(probs_extreme):.3f}\n")
     print(f"--- Highly Skewed Distribution (Total Items: {sum(counts_skewed.values())}) ---")
     print(f"C(0): {coverage_at_q(counts_skewed, 0):.3f}")
-    print(f"UCS: {uniform_divergence_score(probs_skewed):.3f}\n")
+    print(f"UCS: {1.0-uniform_divergence_score(probs_skewed):.3f}\n")
 
     print(f"--- Moderately Skewed Distribution (Total Items: {sum(counts_skewed2.values())}) ---")
     print(f"C(0): {coverage_at_q(counts_skewed2, 0):.3f}")
-    print(f"UCS: {uniform_divergence_score(probs_skewed2):.3f}\n")
+    print(f"UCS: {1.0-uniform_divergence_score(probs_skewed2):.3f}\n")
 
     print(f"--- Slightly Skewed Distribution (Total Items: {sum(counts_skewed3.values())}) ---")
     print(f"C(0): {coverage_at_q(counts_skewed3, 0):.3f}")
-    print(f"UCS: {uniform_divergence_score(probs_skewed3):.3f}\n")
+    print(f"UCS: {1.0-uniform_divergence_score(probs_skewed3):.3f}\n")
 
     print(f"--- Uniform Distribution (Total Items: {sum(counts_uniform.values())}) ---")
     print(f"C(0): {coverage_at_q(counts_uniform, 0):.3f}")
-    print(f"UCS: {uniform_divergence_score(probs_uniform):.3f}\n")
+    print(f"UCS: {1.0-uniform_divergence_score(probs_uniform):.3f}\n")
     
     # Create visualization
     print("Generating Coverage-at-Q visualization...")
