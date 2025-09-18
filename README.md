@@ -183,7 +183,11 @@ Outputs include printed metric values and saved plots in the repository root.
 * Very small sample sizes can make counts-based AUC-C(K) unstable; consider smoothing or minimum count filters.
 * Neither metric replaces entropy; they are alternative, more interpretable lenses.
 
-## 10. Citation
+## 10. For more information
+
+Please refer to this technical report ["Coverage-at-K/Q: Simple and Interpretable Sharpness Metrics"](coverage_at_k_q.pdf) for more rigorous definitions as well as mathematical properties of these metrics.
+
+## 11. Citation
 
 If you use this code or the metric definitions, please cite:
 
