@@ -1,35 +1,20 @@
 import math
 from collections import Counter
 
+# Using the corrected, simpler version of this function
 def coverage_at_k(counts: Counter, k: float, total_possible: int) -> float:
     """
     Calculates the proportion of possible categories with a count strictly greater than k.
-    This matches the convention that C(0) equals standard coverage (non-empty proportion).
-
-    Args:
-        counts: Counter object with category counts
-        k: Threshold value
-        total_possible: Total number of possible categories
-
-    Returns:
-        float: Proportion of categories with a count strictly greater than k
-
     """
     if total_possible == 0:
         return 0.0
-    # Count categories where the value is strictly greater than k
     count_greater_than_k = sum(1 for v in counts.values() if v > k)
     return count_greater_than_k / total_possible
 
+
 def auc_catk(counts: Counter, total_possible: int) -> float:
     """
-    Normalized AUC-C(K) up to the Even Point (strict C(K) with "> k").
-
-    Steps:
-    - Compute Even Point = floor(total_items / number_of_observed_categories)
-    - Observed area: sum_{k=0}^{EvenPoint-1} C(K)
-    - Ideal area (uniform): EvenPoint * (number_of_observed_categories / total_possible)
-    - Return observed / ideal ∈ [0,1]
+    Calculates the standard normalized AUC-C(K) up to the Even Point.
 
     Args:
         counts: Counter object with category counts
@@ -37,32 +22,26 @@ def auc_catk(counts: Counter, total_possible: int) -> float:
 
     Returns:
         float: Normalized AUC-C(K) up to the Even Point
-
     """
-    if total_possible == 0:
-        return 0.0
-
-    if not counts:
+    if total_possible == 0 or not counts:
         return 0.0
 
     total_items = sum(counts.values())
-    num_observed_categories = len(counts)
 
-    if num_observed_categories == 0:
+    # BUG FIX 1: Use total_possible to calculate the even point.
+    if total_possible == 0: # Avoid division by zero
         return 0.0
+    even_point = math.floor(total_items / total_possible)
 
-    even_point = math.floor(total_items / num_observed_categories)
-
+    # If even_point is 0, the sum is over an empty range, so the area is 0.
     if even_point <= 0:
         return 0.0
 
     observed_area = sum(coverage_at_k(counts, k, total_possible) for k in range(even_point))
-    ideal_area = even_point * (num_observed_categories / total_possible)
 
-    if ideal_area == 0:
-        return 0.0
-
-    return observed_area / ideal_area
+    # BUG FIX 2: The ideal area for the standard definition is just even_point.
+    # The final value is the observed area divided by the ideal area.
+    return observed_area / even_point
 
 def coverage_at_q(probs: dict, q: float) -> float:
     """
@@ -82,18 +61,20 @@ def coverage_at_q(probs: dict, q: float) -> float:
     
     assert 0.0 <= q <= 1.0, "q must be in [0, 1]"
 
-    count_greater_equal_q = sum(1 for v in probs.values() if v >= q)
+    count_greater_equal_q = sum(1 for v in probs.values() if v > q)
     return count_greater_equal_q / len(probs)
 
 def deviation_from_uniform(probs: dict) -> float:
     """
     Calculates the deviation from the uniform distribution using the coverage-at-q metric C̅(q).
+    This is equivalent to 1 - UCS.
 
     Args:
         probs: Dictionary with category probabilities
 
     Returns:
-        float: \int_0^p (1 - C̅(q)) dq + \int_p^1 C̅(q) dq, where p = 1/number_of_categories
+        float: The normalized area of deviation. Should be 1.0 for a one-hot distribution
+               and 0.0 for a uniform distribution.
     """
     if not probs:
         return 0.0
@@ -118,12 +99,14 @@ def deviation_from_uniform(probs: dict) -> float:
         if width == 0:
             continue
 
-        # The value of C̅(q) is constant over the interval (q_start, q_end].
-        # We can evaluate its value at the endpoint of the interval.
-        coverage = coverage_at_q(probs, q_end)
+        # The value of C̅(q) is constant over the interval [q_start, q_end).
+        # We must evaluate its value at the beginning of the interval.
+        coverage = coverage_at_q(probs, q_start) # <-- THE FIX
 
         # Apply the correct rule based on which side of p_uniform the interval lies.
-        if q_end <= p_uniform:
+        # Note: We check the interval midpoint to handle cases where a breakpoint is exactly p_uniform
+        interval_midpoint = q_start + width / 2
+        if interval_midpoint < p_uniform:
             # This interval is in the first part of the integral: ∫(1 - C̅(q)) dq
             raw_area += (1 - coverage) * width
         else:
